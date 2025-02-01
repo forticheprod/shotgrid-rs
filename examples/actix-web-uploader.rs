@@ -4,6 +4,10 @@ use futures::{StreamExt, TryStreamExt};
 use serde::Deserialize;
 use shotgrid_rs::{Client, Error};
 use std::env;
+use tokio::sync::mpsc::Receiver;
+use futures::stream::Stream;
+use std::pin::Pin;
+use std::task::{Context, Poll};
 
 #[derive(Clone, Debug)]
 struct Settings {
@@ -132,6 +136,30 @@ async fn upload(
 
 type AnyResult<T> = std::result::Result<T, Box<dyn std::error::Error + Sync + Send + 'static>>;
 
+/// Custom stream adapter for `tokio::sync::mpsc::Receiver`
+struct ReceiverAsStream {
+    rx: Receiver<AnyResult<Vec<u8>>>,
+}
+
+impl Stream for ReceiverAsStream {
+    type Item = AnyResult<Vec<u8>>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.get_mut();
+        match this.rx.poll_recv(cx) {
+            Poll::Ready(Some(result)) => Poll::Ready(Some(result)),
+            Poll::Ready(None) => Poll::Ready(None),
+            Poll::Pending => Poll::Pending,
+        }
+    }
+}
+
+impl ReceiverAsStream {
+    fn new(rx: Receiver<AnyResult<Vec<u8>>>) -> Self {
+        Self { rx }
+    }
+}
+
 /// Spawn a future to actually do the upload.
 ///
 /// Returns a handle for the background task, and a channel `Sender` used to
@@ -148,30 +176,25 @@ fn do_upload(
 ) {
     log::info!("Initializing upload task.");
 
-    // 5 capacity channel should block the handler loop while the upload task is
-    // too busy to accept more bytes (which should block the client making the
-    // request).
-    // Remember the chunks we are handling here are not the same "chunks" as
-    // would be buffered for a multipart upload.
-    // The size of *these* chunks depend on how actix-web is configured.
+    // Create a bounded MPSC channel with a capacity of 5
     let (tx, rx) = tokio::sync::mpsc::channel::<AnyResult<Vec<u8>>>(5);
 
     let handle = tokio::task::spawn_local(async move {
         log::info!("Upload task start.");
         let sess = sg.authenticate_script().await.unwrap();
 
+        // Convert `rx` into a `Stream`
+        let stream = ReceiverAsStream::new(rx);
+
+        // Upload using the `Stream`
         sess.upload(&entity_type, entity_id, Some(&field_name), &filename)
-            // Multipart and chunk size will only work when your ShotGrid
-            // server is configured to use S3 storage.
-            // .multipart(true)
-            // .chunk_size(30 * 1024 * 1024)
-            .send_stream(rx) // The request body is built from the receiver end of the channel.
+            .send_stream(stream)
             .await
             .map_err(|e| {
                 log::error!("{}", e);
-                Error::Unexpected(String::from("Upload failed??"))
-            })
-            .map_err(|e| format!("{:?}", e))?;
+                Error::Unexpected(format!("Upload failed: {:?}", e))
+            })?;
+        
         log::info!("Upload task end.");
         Ok(())
     });

@@ -8,6 +8,7 @@ pub use crate::summarize::{
     SummaryField, SummaryFieldType, SummaryMap, SummaryOptions,
 };
 use serde_json::Value;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// <https://developer.shotgridsoftware.com/rest-api/#tocSactivityupdate>

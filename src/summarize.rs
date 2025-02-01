@@ -1,6 +1,7 @@
 use crate::filters::FinalizedFilters;
 use crate::{handle_response, Session};
 use serde_json::{json, Value};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Request body of a summarize query.

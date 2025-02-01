@@ -56,7 +56,7 @@ is the items in the array portion of the response, and `L` which is the type for
 the response's "links" key).
 
 ```rust,no_run
-use serde_derive::Deserialize;
+use serde::Deserialize;
 use shotgrid_rs::types::{PaginationLinks, ResourceArrayResponse, SelfLink};
 use shotgrid_rs::Client;
 use shotgrid_rs::filters;

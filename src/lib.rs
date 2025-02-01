@@ -74,7 +74,7 @@
 //! the response, and `L` which is the type for the response's "links" key).
 //!
 //! ```no_run
-//! use serde_derive::Deserialize;
+//! use serde::Deserialize;
 //! use shotgrid_rs::types::{PaginationLinks, ResourceArrayResponse, SelfLink};
 //! use shotgrid_rs::Client;
 //! use shotgrid_rs::filters;
@@ -153,12 +153,11 @@
 use std::env;
 use std::fs::File;
 use std::io::Read;
-#[macro_use]
-extern crate serde_derive;
 use crate::types::{ErrorObject, ErrorResponse};
 use log::{debug, error, trace};
 use reqwest::Response;
 use serde::de::DeserializeOwned;
+use serde::Deserialize;
 use serde_json::Value;
 mod entity_relationship_read;
 pub mod filters;

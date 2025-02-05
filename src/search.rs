@@ -82,10 +82,7 @@ impl<'a> SearchBuilder<'a> {
         self
     }
 
-    pub async fn execute<D: 'static>(self) -> crate::Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn execute<D: 'static + DeserializeOwned>(self) -> crate::Result<D> {
         let mut query: Vec<(&str, Cow<str>)> = vec![("fields", Cow::Borrowed(self.fields))];
         if let Some(pag) = self.pagination {
             if let Some(number) = pag.number {

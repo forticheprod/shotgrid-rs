@@ -337,10 +337,7 @@ impl Client {
     /// Provides version information about the ShotGrid server.
     ///
     /// Does not require authentication
-    pub async fn info<D: 'static>(&self) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn info<D: DeserializeOwned + 'static>(&self) -> Result<D> {
         let req = self
             .http
             .get(&format!("{}/api/v1/", self.sg_server))

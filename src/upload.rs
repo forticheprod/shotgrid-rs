@@ -415,7 +415,7 @@ impl<'a> UploadReqBuilder<'a> {
 
         let read_stream = poll_fn(move |_| -> Poll<Option<std::io::Result<Vec<u8>>>> {
             match file_content.read(&mut read_buf) {
-                Ok(len) if len == 0 => Poll::Ready(None),
+                Ok(0) => Poll::Ready(None),
                 Ok(len) => Poll::Ready(Some(Ok(read_buf[0..len].to_vec()))),
                 Err(err) => Poll::Ready(Some(Err(err))),
             }
@@ -445,8 +445,8 @@ impl<'a> UploadReqBuilder<'a> {
         } = self;
 
         if multipart
-            && !(MAX_MULTIPART_CHUNK_SIZE >= multipart_chunk_size
-                && multipart_chunk_size >= MIN_MULTIPART_CHUNK_SIZE)
+            && !(MIN_MULTIPART_CHUNK_SIZE..=MAX_MULTIPART_CHUNK_SIZE)
+                .contains(&multipart_chunk_size)
         {
             return Err(Error::UploadError(format!(
                 "Multipart chunk size must be between `{}` and `{}`",

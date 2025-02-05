@@ -78,10 +78,7 @@ impl<'a> TextSearchBuilder<'a> {
         self
     }
 
-    pub async fn execute<D: 'static>(self) -> crate::Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn execute<D: DeserializeOwned + 'static>(self) -> crate::Result<D> {
         let mut body = HashMap::new();
 
         body.insert("entity_types", json!(self.entity_filters));

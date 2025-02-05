@@ -118,15 +118,12 @@ impl<'sg> Session<'sg> {
     /// `fields` can be specified to limit the returned fields from the request.
     /// `fields` is an optional comma separated list of field names to return in the response.
     /// Passing `None` will use the default behavior of returning _all fields_.
-    pub async fn create<D: 'static>(
+    pub async fn create<D: DeserializeOwned + 'static>(
         &self,
         entity: &str,
         data: Value,
         fields: Option<&str>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http
@@ -186,17 +183,14 @@ impl<'sg> Session<'sg> {
     /// Provides the information for where an upload should be sent and how to connect the upload
     /// to a field once it has been uploaded.
     /// <https://developer.shotgridsoftware.com/rest-api/#get-upload-url-for-field>
-    pub async fn entity_field_upload_url_read<D: 'static>(
+    pub async fn entity_field_upload_url_read<D: DeserializeOwned + 'static>(
         &self,
         entity: &str,
         entity_id: i32,
         file_name: &str,
         field_name: &str,
         multipart_upload: Option<bool>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
 
         let mut params = vec![("filename", file_name)];
@@ -251,10 +245,11 @@ impl<'sg> Session<'sg> {
 
     /// Provides access to the list of users that follow an entity.
     /// <https://developer.shotgridsoftware.com/rest-api/#read-entity-followers>
-    pub async fn entity_followers_read<D: 'static>(&self, entity: &str, entity_id: i32) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn entity_followers_read<D: DeserializeOwned + 'static>(
+        &self,
+        entity: &str,
+        entity_id: i32,
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let req = sg
             .http
@@ -269,14 +264,11 @@ impl<'sg> Session<'sg> {
 
     /// Allows a user to follow one or more entities
     /// <https://developer.shotgridsoftware.com/rest-api/#follow-an-entity>
-    pub async fn entity_follow_update<D: 'static>(
+    pub async fn entity_follow_update<D: DeserializeOwned + 'static>(
         &self,
         user_id: i32,
         entities: Vec<EntityIdentifier>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let request = sg
             .http
@@ -304,15 +296,12 @@ impl<'sg> Session<'sg> {
 
     /// Allows a user to unfollow a single entity.
     /// <https://developer.shotgridsoftware.com/rest-api/#unfollow-an-entity>
-    pub async fn entity_unfollow_update<D: 'static>(
+    pub async fn entity_unfollow_update<D: DeserializeOwned + 'static>(
         &self,
         user_id: i32,
         entity_type: &str,
         entity_id: i32,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let request = sg
             .http
@@ -402,10 +391,7 @@ impl<'sg> Session<'sg> {
 
     /// Provides the values of a subset of site preferences.
     /// <https://developer.shotgridsoftware.com/rest-api/#read-preferences>
-    pub async fn preferences_read<D: 'static>(&self) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn preferences_read<D: DeserializeOwned + 'static>(&self) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let req = sg
             .http
@@ -439,10 +425,12 @@ impl<'sg> Session<'sg> {
     /// Read the data for a single entity.
     ///
     /// `fields` is an optional comma separated list of field names to return in the response.
-    pub async fn read<D: 'static>(&self, entity: &str, id: i32, fields: Option<&str>) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn read<D: DeserializeOwned + 'static>(
+        &self,
+        entity: &str,
+        id: i32,
+        fields: Option<&str>,
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http
@@ -458,10 +446,11 @@ impl<'sg> Session<'sg> {
     }
     /// Revive an entity.
     /// <https://developer.shotgridsoftware.com/rest-api/#revive-a-record>
-    pub async fn revive<D: 'static>(&self, entity: &str, entity_id: i32) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn revive<D: DeserializeOwned + 'static>(
+        &self,
+        entity: &str,
+        entity_id: i32,
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let req = sg
             .http
@@ -475,10 +464,10 @@ impl<'sg> Session<'sg> {
         handle_response(req.send().await?).await
     }
 
-    pub async fn schema_read<D: 'static>(&self, project_id: Option<i32>) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn schema_read<D: DeserializeOwned + 'static>(
+        &self,
+        project_id: Option<i32>,
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http
@@ -806,14 +795,11 @@ impl<'sg> Session<'sg> {
 
     /// Provides access to the thread content of an entity. Currently only note is supported.
     /// <https://developer.shotgridsoftware.com/rest-api/#read-the-thread-contents-for-a-note>
-    pub async fn thread_contents_read<D: 'static>(
+    pub async fn thread_contents_read<D: DeserializeOwned + 'static>(
         &self,
         note_id: i32,
         entity_fields: Option<HashMap<String, String>>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http
@@ -836,16 +822,13 @@ impl<'sg> Session<'sg> {
     ///
     /// `data` is used as the request body and as such should be an object with keys and values
     /// corresponding to the fields on the given entity.
-    pub async fn update<D: 'static>(
+    pub async fn update<D: DeserializeOwned + 'static>(
         &self,
         entity: &str,
         id: i32,
         data: Value,
         fields: Option<&str>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http
@@ -1034,10 +1017,10 @@ impl<'sg> Session<'sg> {
 
     /// Provides access to the list of entities a user follows.
     /// <https://developer.shotgridsoftware.com/rest-api/#read-user-follows>
-    pub async fn user_follows_read<D: 'static>(&self, user_id: i32) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    pub async fn user_follows_read<D: DeserializeOwned + 'static>(
+        &self,
+        user_id: i32,
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let req = sg
             .http
@@ -1053,16 +1036,13 @@ impl<'sg> Session<'sg> {
 
     /// Read the work day rules for each day specified in the query.
     /// <https://developer.shotgridsoftware.com/rest-api/#read-work-day-rules>
-    pub async fn work_days_rules_read<D: 'static>(
+    pub async fn work_days_rules_read<D: DeserializeOwned + 'static>(
         &self,
         start_date: &str,
         end_date: &str,
         project_id: Option<i32>,
         user_id: Option<i32>,
-    ) -> Result<D>
-    where
-        D: DeserializeOwned,
-    {
+    ) -> Result<D> {
         let (sg, token) = self.get_sg().await?;
         let mut req = sg
             .http

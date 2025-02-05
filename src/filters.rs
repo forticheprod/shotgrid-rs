@@ -318,7 +318,7 @@ where
     F: Into<ComplexFilter> + Clone,
 {
     ComplexFilter::LogicalFilterOperator(LogicalFilterOperator::And(
-        conditions.to_vec().into_iter().map(Into::into).collect(),
+        conditions.iter().cloned().map(Into::into).collect(),
     ))
 }
 
@@ -327,7 +327,7 @@ where
     F: Into<ComplexFilter> + Clone,
 {
     ComplexFilter::LogicalFilterOperator(LogicalFilterOperator::Or(
-        conditions.to_vec().into_iter().map(Into::into).collect(),
+        conditions.iter().cloned().map(Into::into).collect(),
     ))
 }
 
@@ -762,7 +762,7 @@ impl Field {
     {
         Filter::In {
             field: self.field,
-            values: values.to_vec().into_iter().map(Into::into).collect(),
+            values: values.iter().cloned().map(Into::into).collect(),
         }
     }
 

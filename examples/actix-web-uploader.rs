@@ -89,7 +89,7 @@ async fn upload(
 
                 // At this point, we have a data source (the `field`) and a filename,
                 // so we can "do the upload".
-                let (handle, mut sender) = do_upload(
+                let (handle, sender) = do_upload(
                     settings.sg(),
                     query.entity_type.clone(),
                     query.entity_id,

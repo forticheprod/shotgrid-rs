@@ -46,7 +46,7 @@ async fn main() -> shotgrid_rs::Result<()> {
     let session = sg.authenticate_script().await?;
 
     session
-        .entity_unfollow_update(user_id.unwrap(), &entity_type.unwrap(), entity_id.unwrap())
+        .entity_unfollow_update::<()>(user_id.unwrap(), &entity_type.unwrap(), entity_id.unwrap())
         .await?;
 
     // Returns 204, nothing to print out

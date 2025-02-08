@@ -54,7 +54,7 @@ async fn main() -> shotgrid_rs::Result<()> {
     };
 
     session
-        .entity_follow_update(user_id.unwrap(), vec![entity_identifier])
+        .entity_follow_update::<()>(user_id.unwrap(), vec![entity_identifier])
         .await?;
 
     // Returns 204, nothing to print out
